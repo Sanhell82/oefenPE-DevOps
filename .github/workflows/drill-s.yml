@@ -1,0 +1,41 @@
+name: Drill S      
+
+env:
+  APP: calculator
+
+on:
+  workflow_dispatch:
+    inputs:
+      modus:
+        description: Maak een keuze
+        required: true
+        type: choice
+        options: [test, live]            
+
+jobs:
+  veilig:                            
+    runs-on: ubuntu-latest  
+
+    steps:
+      - name: Toon secret
+        env:
+          SLEUTEL: ${{ secrets.API_KEY }}
+        run: |
+          echo "Sleutel: $SLEUTEL"
+
+      # <-- NIEUW stap 2: tekst met ": " -> run: |
+      #     $APP = eigen variabele uit env (bovenaan, hele workflow)
+      #     ${{ github.event.inputs.modus }} = gekozen input (geen env nodig: de opdracht vraagt geen variabele voor modus)
+      - name: Toon app en modus
+        run: |
+          echo "App: $APP - Modus: ${{ github.event.inputs.modus }}"
+
+      # <-- NIEUW stap 3: enkel als de gekozen modus live is
+      - name: Enkel live
+        if: github.event.inputs.modus == 'live'
+        run: echo "LIVE deploy"
+
+      # <-- NIEUW stap 4: altijd, ook als een stap hierboven faalt
+      - name: Altijd klaar
+        if: always()
+        run: echo "Klaar"

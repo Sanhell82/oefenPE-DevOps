@@ -1,0 +1,35 @@
+name: Drill B                  
+
+on:
+  workflow_dispatch:
+    inputs:
+      taal:
+        description: Maak een keuze
+        required: true
+        type: choice
+        options: [nl, en, fr]            
+
+jobs:
+  groet:                            
+    runs-on: ubuntu-latest  
+    env:                                         # <-- NIEUW: variabele voor deze job
+      TAAL: ${{ github.event.inputs.taal }}    # <-- NIEUW: TAAL krijgt de gekozen waarde (nl, en, fr)     
+    steps:
+      - name: Enkel nl
+        if: github.event.inputs.taal == 'nl'
+        run: echo "Hallo"
+    
+      - name: Enkel en
+        if: github.event.inputs.taal == 'en'
+        run: echo "Hello"
+
+      - name: Enkel fr
+        if: github.event.inputs.taal == 'fr'
+        run: echo "Bonjour"
+
+      - name: Toon gekozen taal
+        if: always()
+        run: |
+          echo "Gekozen taal: $TAAL"
+
+      

@@ -3,7 +3,7 @@ name: Drill A                     # naam exact uit de opdracht
 on:
   workflow_dispatch:                # handmatige start (knop Run workflow)
   push: 
-    branches: [ main ]             # bij elke push -> zonder branches
+    branches: [ main ]             # bij elke push 
 
 jobs:
   echo:                            # jobnaam uit de opdracht (2 spaties)
