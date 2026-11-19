@@ -1,0 +1,29 @@
+name: Drill A                     # naam exact uit de opdracht
+
+on:
+  workflow_dispatch:                # handmatige start (knop Run workflow)
+  push: 
+    branches: [ main ]             # bij elke push -> zonder branches
+
+jobs:
+  echo:                            # jobnaam uit de opdracht (2 spaties)
+    runs-on: ubuntu-latest          # Ubuntu virtuele machine (4 spaties)
+    steps:
+      # 1. code uitchecken -> altijd deze action, geen with nodig
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: maak directory en bestand met inhoud aan
+        run: |
+          mkdir out
+          echo "PXL" > out/info.txt
+          whoami >> out/info.txt
+    
+      - name: inhoud
+        run: cat out/info.txt
+
+      - name: actor
+        run: |
+          echo "gestart door ${{ github.actor }} en draait op ${{ runner.os }}"
+
+
