@@ -1,0 +1,78 @@
+# Opgave 2 - bestand: .github/workflows/ci.yml
+name: PE CI
+
+on:
+  # handmatige start met input parameter "niveau": keuze snel / volledig
+  workflow_dispatch:
+    inputs:
+      niveau:                       # naam van de input = exact uit de opdracht
+        description: Maak een keuze # mag blijven staan
+        required: true              # mag blijven staan
+        type: choice                # keuzelijst
+        options: [snel, volledig]   # keuzes = exact uit de opdracht
+  # bij elke pull request naar de main branch
+  pull_request:
+    branches: [main]
+
+# omgevingsvariabele voor de HELE workflow (0 spaties, naast on/jobs)
+env:
+  STUDENT: 12404214
+
+jobs:
+  test:                             # job 1 uit de opdracht
+    runs-on: ubuntu-latest
+    # omgevingsvariabele van de job, gevuld met de GEKOZEN input
+    env:
+      NIVEAU: ${{ github.event.inputs.niveau }}
+    steps:
+      # 1. code uitchecken (requirements.txt en de testen zitten in de repo)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Python 3.12 - versie altijd tussen quotes
+      - name: Installeer Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 3. dependencies uit requirements.txt
+      - name: Installeer dependencies
+        run: pip install -r requirements.txt
+
+      # 4. in EEN stap: directory + pytest, output in rapport/testrapport.txt
+      - name: Pytest met rapport
+        run: |
+          mkdir rapport
+          pytest > rapport/testrapport.txt
+
+      # 5. tekst met beide variabelen: lezen met $NAAM
+      - name: Toon student en niveau
+        run: |
+          echo "Student: $STUDENT - Niveau: $NIVEAU"
+
+      # 6. enkel als niveau = volledig
+      - name: Enkel volledig - listing
+        if: github.event.inputs.niveau == 'volledig'
+        run: ls -alhR
+
+      # 7. enkel als niveau = snel
+      - name: Enkel snel
+        if: github.event.inputs.niveau == 'snel'
+        run: echo "Snelle run"
+
+      # 8. testrapport als artifact, ook als de testen falen -> if: always()
+      - name: Bewaar testrapport
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testrapport
+          path: rapport/testrapport.txt
+
+  rapport:                          # job 2 uit de opdracht
+    needs: test                     # start pas nadat "test" klaar is
+    runs-on: ubuntu-latest
+    steps:
+      # wie startte + besturingssysteem van de runner
+      - name: Klaar
+        run: |
+          echo "Klaar: gestart door ${{ github.actor }} op ${{ runner.os }}"

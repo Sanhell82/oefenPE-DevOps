@@ -1,0 +1,50 @@
+# Opgave 1 - bestand: .github/workflows/basis.yml
+name: PE Basis                      # naam exact uit de opdracht
+
+on:
+  workflow_dispatch:                # handmatige start (knop Run workflow)
+  push:                             # bij elke push -> zonder branches
+
+jobs:
+  basis:                            # jobnaam uit de opdracht (2 spaties)
+    runs-on: ubuntu-latest          # Ubuntu virtuele machine (4 spaties)
+    steps:
+      # 1. code uitchecken -> altijd deze action, geen with nodig
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. tekst met ": " -> altijd onder run: |
+      - name: Print student
+        run: |
+          echo "Student: 12404214"
+
+      # 3. directory + bestand <studentennummer>.txt
+      #    >  = nieuw bestand met eerste lijn
+      #    >> = datum ONDERAAN in HETZELFDE bestand
+      - name: Maak directory en bestand
+        run: |
+          mkdir pe
+          echo "Hogeschool PXL" > pe/12404214.txt
+          date >> pe/12404214.txt
+
+      # 4. inhoud van het bestand tonen
+      - name: Toon inhoud
+        run: cat pe/12404214.txt
+
+      # 5. verificatie: listing van alle directories (recursief)
+      - name: Toon listing
+        run: ls -alhR
+
+      # 6. wie startte + welke branch -> GitHub contexts
+      #    github.ref_name = korte branchnaam (main), github.ref = refs/heads/main
+      - name: Toon wie en welke branch
+        run: |
+          echo "Gestart door: ${{ github.actor }}"
+          echo "Branch: ${{ github.ref_name }}"
+
+      # 7. artifact: name = naam uit de opdracht, path = het bestand uit stap 3
+      - name: Bewaar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pe-bestand
+          path: pe/12404214.txt
